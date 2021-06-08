@@ -95,7 +95,7 @@ class YapApi(object):
             print( str(err))    
         print("Unexpected end of program")
         
-    def split_text_to_sentences(self, tokenized_text):
+    def split_text_to_sentences(self, tokenized_text: str) -> List[str]:
         """
         YAP better perform on sentence-by-sentence.
         Also, dep_tree is limited to 256 nodes.
@@ -132,7 +132,7 @@ class YapApi(object):
             sentences.append(" ".join(arr))
         return sentences
           
-    def clean_text(self, text:str):
+    def clean_text(self, text:str) -> str:
         text=text.replace('\n', ' ').replace('\r', ' ')        
         pattern= re.compile(r'[^א-ת\s.,!?a-zA-Z]')        
         alnum_text =pattern.sub(' ', text)
@@ -155,7 +155,7 @@ class YapApi(object):
         self.md_lattice=pd.concat([self.md_lattice, _md_lattice])
         self.ma_lattice=pd.concat([self.ma_lattice, _ma_lattice])
 
-    def split_long_text(self, tokenized_text:str):
+    def split_long_text(self, tokenized_text:str) -> List[str]:
         # Max num of words YAP can handle at one call.
         max_len=150
         arr=tokenized_text.split()        
@@ -180,7 +180,6 @@ class YapApi(object):
         """
         url = "{}{}{}".format( "http://", self.__ip, "/yap/heb/joint")
         _json='{"text":"  '+text+'  "}'         
-        headers = {'content-type': 'application/json'}
         r = requests.post(url,
                   data=_json.encode('utf-8'),
                   headers={'Content-type': 'application/json; charset=utf-8'})
@@ -205,7 +204,7 @@ class YapApi(object):
                 ma_lattice=self.parse_ma_lattice(v)
         return dep_tree.fillna(-1), md_lattice.fillna(-1), ma_lattice.fillna(-1)
 
-    def parse_dep_tree(self, v:str):
+    def parse_dep_tree(self, v:str) -> pd.DataFrame:
         data=[sub.split("\t") for item  in str(v).split("\n\n") for sub in item.split("\n")]
         labels=[yap_cols.num.name, yap_cols.word.name, yap_cols.lemma.name, yap_cols.pos.name, yap_cols.pos_2.name, 
                 yap_cols.empty.name, yap_cols.dependency_arc.name, yap_cols.dependency_part.name,
@@ -223,7 +222,7 @@ class YapApi(object):
         df.loc[df[yap_cols.lemma.name] == '', [yap_cols.lemma.name]] =df[yap_cols.word.name]
         return df
 
-    def parse_md_lattice(self, v:str):
+    def parse_md_lattice(self, v:str) -> pd.DataFrame:
         data=[sub.split("\t") for item  in str(v).split("\n\n") for sub in item.split("\n")]
         labels=[yap_cols.num.name, yap_cols.num_2.name,yap_cols.word.name, yap_cols.lemma.name, 
                 yap_cols.pos.name, yap_cols.pos_2.name,                
@@ -268,7 +267,7 @@ class YapApi(object):
         df=pd.DataFrame(list_of_dict)
         return df
 
-    def parse_ma_lattice(self, v:str):
+    def parse_ma_lattice(self, v:str) -> pd.DataFrame:
         data=[sub.split("\t") for item  in str(v).split("\n\n") for sub in item.split("\n")]
         labels=[yap_cols.num.name, 
                 yap_cols.num_2.name,

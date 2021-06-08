@@ -19,6 +19,8 @@
 import re
 import codecs
 import math
+from typing import List, Tuple
+
 """
     Robust Hebrew Tokenizer 
 
@@ -103,7 +105,7 @@ scanner = re.Scanner([
     ])
 
 ##### tokenize
-def tokenize( sent):
+def tokenize(sent: str) -> List[Tuple[str, str]]:
     tok = sent
     parts,reminder = scanner.scan(tok)
     assert(not reminder)
@@ -111,7 +113,11 @@ def tokenize( sent):
 
 
 class HebTokenizer(object):
-    def tokenize(self, sent:str):
+    def tokenize(self, sent: str) -> List[Tuple[str, str]]:
+        """ Given a hebrew text(possibly with English text mixed as well),
+            tokenizes it, returning a list of token types tupled with the token
+            itself.
+        """
         if type(sent)!= str:
             return []
         if sent is None or len(sent)==0 :
