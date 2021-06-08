@@ -24,9 +24,17 @@ import sys
 import traceback
 import csv
 import re, string
+from typing import Any, List, NamedTuple
 from .enums import *
 from .hebtokenizer import HebTokenizer
 
+class YapResults(NamedTuple):
+    tokenized_text: str
+    segmented_text: str
+    lemmas: str
+    dep_tree: pd.DataFrame
+    md_lattice: pd.DataFrame
+    ma_lattice: pd.DataFrame
 
 
 class YapApi(object):
@@ -41,7 +49,7 @@ class YapApi(object):
     def __init__(self):        
         pass  
        
-    def run(self, text:str, ip:str):
+    def run(self, text: str) -> YapResults:
         """
         text: the text to be parsed.
         ip: YAP server IP, with port (default is 8000), if localy installed then 127.0.0.1:8000
@@ -68,7 +76,14 @@ class YapApi(object):
                 _segmented_text= ' '.join( _dep_tree[yap_cols.word.name])
                 _lemmas=' '.join(_dep_tree[yap_cols.lemma.name])
                 self.append_prgrph_rslts(_dep_tree, _md_lattice, _ma_lattice, _segmented_text, _lemmas)                 
-            return tokenized_text, self.segmented_text, self.lemmas, self.dep_tree, self.md_lattice, self.ma_lattice            
+            return YapResults(
+                tokenized_text=tokenized_text,
+                segmented_text=self.segmented_text,
+                lemmas=self.lemmas,
+                dep_tree=self.dep_tree,
+                md_lattice=self.md_lattice,
+                ma_lattice=self.ma_lattice
+            )
 
         except Exception as err:
             print( sys.exc_info()[0])            
