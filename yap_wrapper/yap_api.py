@@ -46,8 +46,12 @@ class YapApi(object):
     3. Turn output CONLLU format to Dataframe & JSON.
     """   
 
-    def __init__(self):        
-        pass  
+    __ip: str
+    __tokenizer: HebTokenizer
+
+    def __init__(self, ip: str):        
+        self.__ip = ip 
+        self.__tokenizer = HebTokenizer()
        
     def run(self, text: str) -> YapResults:
         """
@@ -59,7 +63,7 @@ class YapApi(object):
             # Keep alpha-numeric and punctuations only.
             alnum_text=self.clean_text(text)
             # Tokenize...
-            tokenized_text = HebTokenizer().tokenize(alnum_text)
+            tokenized_text = self.__tokenizer.tokenize(alnum_text)
             tokenized_text = ' '.join([word for (part, word) in  tokenized_text])
             print("Tokens: {}".format(len(tokenized_text.split())))                       
             self.init_data_items()                        
@@ -67,7 +71,7 @@ class YapApi(object):
             text_arr=self.split_text_to_sentences(tokenized_text)
             for i, sntnce_or_prgrph in enumerate( text_arr):
                 # Actual call to YAP server
-                rspns=self.call_yap(sntnce_or_prgrph, ip)
+                rspns=self.call_yap(sntnce_or_prgrph)
                 print('End Yap call {} /{}'.format( i ,len(text_arr)-1))  
                 # Expose this code to print the results iin Conllu format
                 #conllu_dict=self.print_in_conllu_format(rspns)
@@ -170,11 +174,11 @@ class YapApi(object):
         rslt.append(" ".join(arr))
         return rslt    
 
-    def call_yap(self, text:str, ip:str):
+    def call_yap(self, text:str) -> Any:
         """
         Actual call to YAP HTTP Server
         """
-        url = "{}{}{}".format( "http://", ip, "/yap/heb/joint")
+        url = "{}{}{}".format( "http://", self.__ip, "/yap/heb/joint")
         _json='{"text":"  '+text+'  "}'         
         headers = {'content-type': 'application/json'}
         r = requests.post(url,
